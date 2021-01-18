@@ -80,7 +80,14 @@ export default Vue.extend({
       const rowKey = this.states.rowKey;
       if (!rowKey) throw new Error('[ElTable] prop row-key is required');
     },
-
+    // 交换列的位置
+    changeColumnsIndex(i, n) {
+      const states = this.states;
+      const tmp = Object.assign({}, states._columns[i]);
+      states._columns[i] = states._columns[n];
+      states._columns[n] = tmp;
+      this.updateColumns();
+    },
     // 更新列
     updateColumns() {
       const states = this.states;
@@ -223,7 +230,7 @@ export default Vue.extend({
       if (rowKey) {
         selectedMap = getKeysMap(selection, rowKey);
       }
-      const isSelected = function(row) {
+      const isSelected = function (row) {
         if (selectedMap) {
           return !!selectedMap[getRowIdentity(row, rowKey)];
         } else {
