@@ -196,7 +196,7 @@
       vertical-align: middle;
       padding-left: 10px;
       padding-right: 10px;
-      width: 100%;
+      width: calc(100% - 5px); // 为兼容表头拖拽 需要预留5px间距
 
       &.highlight {
         color: $--color-primary;

@@ -277,7 +277,6 @@ import TableBody from "./table-body";
 import TableHeader from "./table-header";
 import TableFooter from "./table-footer";
 import { parseHeight } from "./util";
-import Sortable from 'sortablejs'
 
 let tableIdSeed = 1;
 
@@ -395,26 +394,7 @@ export default {
   },
 
   methods: {
-    //行拖拽
-    rowDrop() {
-      const tbody = document.querySelector('.el-table__body-wrapper tbody')
-      Sortable.create(tbody, {
-        animation: 0,
-        ghostClass: 'success-row',
-      })
-    },
-    //列拖拽
-    columnDrop() {
-      const wrapperTr = document.querySelector('.el-table__header-wrapper tr')
-      this.sortObj = Sortable.create(wrapperTr, {
-        animation: 0,
-        ghostClass: 'success-row',
-        onEnd: ({ newIndex, oldIndex }) => {
-          this.store.changeColumnsIndex(newIndex, oldIndex);
-          return false;
-        }
-      })
-    },
+    
     getMigratingConfig() {
       return {
         events: {
@@ -758,14 +738,6 @@ export default {
     });
 
     this.$ready = true;
-
-    // 阻止默认行为
-    document.body.ondrop = function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    };
-    this.rowDrop()
-    this.columnDrop()
   },
 
   destroyed() {
