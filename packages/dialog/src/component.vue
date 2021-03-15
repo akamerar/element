@@ -36,7 +36,7 @@
             v-if="showFullScreen"
             @click="handleFullScreen"
             style="right: 55px"
-            :style="isFullscreen ? 'top: 19px' : 'top: 22px'"
+            :style="isFullscreen ? 'top: 20px' : 'top: 22px'"
           >
             <i
               class="el-dialog__fullscreen"
@@ -151,8 +151,8 @@ export default {
       closed: false,
       key: 0,
       style: {},
-      transX: "-50%",
-      transY: "-50%",
+      transX: 0,
+      transY: 0,
       x: 0,
       y: 0,
     };
@@ -160,8 +160,10 @@ export default {
   watch: {
     visible(val) {
       if (val) {
-        this.getStyle();
         this.closed = false;
+        this.$nextTick(() => {
+          this.getStyle();
+        });
         this.$emit("open");
         this.$el.addEventListener("scroll", this.updatePopper);
         this.$nextTick(() => {
@@ -181,6 +183,11 @@ export default {
         }
       }
     },
+    width(val) {
+      if (val) {
+        this.style.width = this.width;
+      }
+    },
   },
 
   computed: {},
@@ -189,14 +196,18 @@ export default {
     getStyle() {
       let style = {};
       if (!this.fullscreen) {
-        style.marginTop = this.top;
         if (this.width) {
           style.width = this.width;
         }
       }
-      this.transX = parseInt(-parseInt(this.width) / 2);
-      this.transY = parseInt(-innerHeight / 2);
-      style.transform = `translate(${this.transX}px,-50%)`;
+      let height = this.$el.querySelector(".el-dialog").offsetHeight;
+      let width = this.width;
+      if (height == "auto") height = 0;
+      if (width.indexOf("%") > 0) width = innerWidth * (parseInt(width) / 100);
+      this.transX = parseInt((innerWidth - parseInt(width)) / 2);
+      this.transY = parseInt((innerHeight - parseInt(height)) / 2);
+      style.left = `${this.transX}px`;
+      style.top = `${this.transY}px`;
       this.style = style;
     },
     getMigratingConfig() {
@@ -246,9 +257,16 @@ export default {
     },
     onResize(style, dom) {
       if (style.height === "auto") return;
-      this.transX = parseInt(-parseInt(this.width) / 2);
-      this.transY = parseInt(-parseInt(style.height) / 2);
-      this.style.transform = `translate(${this.transX}px,${this.transY}px)`;
+      this.transX = parseInt((innerWidth - parseInt(style.width)) / 2);
+      this.transY = parseInt((innerHeight - parseInt(style.height)) / 2);
+      this.style.left = `${this.transX}px`;
+      this.style.top = `${this.transY}px`;
+      if (this.style.transition !== "top 0.3s ease") {
+        this.style.transition = "top 0.3s ease";
+        setTimeout(() => {
+          this.style.transition = "unset";
+        }, 300);
+      }
     },
     // 鼠标按下事件
     onMouseDown($event) {
@@ -266,7 +284,8 @@ export default {
       this.y = e.pageY;
       this.transX = this.transX + disX;
       this.transY = this.transY + disY;
-      this.style.transform = `translate(${this.transX}px,${this.transY}px)`;
+      this.style.left = `${this.transX}px`;
+      this.style.top = `${this.transY}px`;
     },
     removeEvent() {
       window.removeEventListener("mousemove", this.setTrans);

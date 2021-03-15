@@ -201,7 +201,6 @@ export default {
     });
 
     // 拖拽
-    // this.rowDrop();
     this.columnDrop();
   },
 
@@ -216,22 +215,9 @@ export default {
   },
 
   methods: {
-    //行拖拽
-    rowDrop() {
-      const tbody = document.querySelector(".el-table__body-wrapper tbody");
-      Sortable.create(tbody, {
-        animation: 0,
-        ghostClass: "success-row",
-        onEnd: ({ newIndex, oldIndex }) => {
-          const data = this.store.changeRowsIndex(newIndex, oldIndex);
-          this.store.commit("setData", data);
-          return false;
-        },
-      });
-    },
     //列拖拽
     columnDrop() {
-      const wrapperTr = document.querySelector(".el-table__header-wrapper tr");
+      const wrapperTr = this.table.$el.querySelector(".el-table__header-wrapper tr");
       this.oSortable = Sortable.create(wrapperTr, {
         animation: 300,
         disabled: false,
@@ -239,7 +225,6 @@ export default {
         handle: '.cell',
         onEnd: ({ newIndex, oldIndex }) => {
           this.store.changeColumnsIndex(newIndex, oldIndex);
-          return false;
         },
       });
     },

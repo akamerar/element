@@ -83,9 +83,10 @@ export default Vue.extend({
     // 交换列的位置
     changeColumnsIndex(i, n) {
       const states = this.states;
-      const tmp = Object.assign({}, states._columns[i]);
-      states._columns[i] = states._columns[n];
-      states._columns[n] = tmp;
+      const _columns = states._columns;
+      const oldItem = _columns[n]
+      _columns.splice(n, 1)
+      _columns.splice(i, 0, oldItem)
       this.updateColumns();
     },
     // 交换行的位置

@@ -6,7 +6,7 @@
       'el-upload-list--' + listType,
       { 'is-disabled': disabled }
     ]"
-    name="el-list"
+    name="none"
   >
     <li
       v-for="file in files"
