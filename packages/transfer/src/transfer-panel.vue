@@ -52,10 +52,10 @@
 </template>
 
 <script>
-  import ElCheckboxGroup from 'element-ui/packages/checkbox-group';
-  import ElCheckbox from 'element-ui/packages/checkbox';
-  import ElInput from 'element-ui/packages/input';
-  import Locale from 'element-ui/src/mixins/locale';
+  import ElCheckboxGroup from 'carfi-element-ui/packages/checkbox-group';
+  import ElCheckbox from 'carfi-element-ui/packages/checkbox';
+  import ElInput from 'carfi-element-ui/packages/input';
+  import Locale from 'carfi-element-ui/src/mixins/locale';
 
   export default {
     mixins: [Locale],

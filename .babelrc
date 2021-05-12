@@ -31,7 +31,8 @@
         ["module-resolver", {
           "root": ["element-ui"],
           "alias": {
-            "element-ui/src": "element-ui/lib"
+            "element-ui/src": "element-ui/lib",
+            "carfi-element-ui/src": "carfi-element-ui/lib"
           }
         }]
       ]

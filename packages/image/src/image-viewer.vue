@@ -1,6 +1,12 @@
 <template>
   <transition name="viewer-fade">
-    <div tabindex="-1" ref="el-image-viewer__wrapper" class="el-image-viewer__wrapper" :style="{ 'z-index': zIndex }">
+    <div
+      tabindex="-1"
+      ref="el-image-viewer__wrapper"
+      class="el-image-viewer__wrapper"
+      :class="[{ 'el-image-viewer__comp': innerComp }]"
+      :style="{ 'z-index': zIndex }"
+    >
       <div class="el-image-viewer__mask"></div>
       <!-- CLOSE -->
       <span class="el-image-viewer__btn el-image-viewer__close" @click="hide">
@@ -11,14 +17,16 @@
         <span
           class="el-image-viewer__btn el-image-viewer__prev"
           :class="{ 'is-disabled': !infinite && isFirst }"
-          @click="prev">
-          <i class="el-icon-arrow-left"/>
+          @click="prev"
+        >
+          <i class="el-icon-arrow-left" />
         </span>
         <span
           class="el-image-viewer__btn el-image-viewer__next"
           :class="{ 'is-disabled': !infinite && isLast }"
-          @click="next">
-          <i class="el-icon-arrow-right"/>
+          @click="next"
+        >
+          <i class="el-icon-arrow-right" />
         </span>
       </template>
       <!-- ACTIONS -->
@@ -29,69 +37,81 @@
           <i class="el-image-viewer__actions__divider"></i>
           <i :class="mode.icon" @click="toggleMode"></i>
           <i class="el-image-viewer__actions__divider"></i>
-          <i class="el-icon-refresh-left" @click="handleActions('anticlocelise')"></i>
-          <i class="el-icon-refresh-right" @click="handleActions('clocelise')"></i>
+          <i
+            class="el-icon-refresh-left"
+            @click="handleActions('anticlocelise')"
+          ></i>
+          <i
+            class="el-icon-refresh-right"
+            @click="handleActions('clocelise')"
+          ></i>
         </div>
       </div>
       <!-- CANVAS -->
       <div class="el-image-viewer__canvas">
-        <img
-          v-for="(url, i) in urlList"
-          v-if="i === index"
-          ref="img"
-          class="el-image-viewer__img"
-          :key="url"
-          :src="currentImg"
-          :style="imgStyle"
-          @load="handleImgLoad"
-          @error="handleImgError"
-          @mousedown="handleMouseDown">
+        <template v-for="(url, i) in urlList">
+          <img
+            v-if="i === index"
+            ref="img"
+            class="el-image-viewer__img"
+            :key="url"
+            :src="currentImg"
+            :style="imgStyle"
+            @load="handleImgLoad"
+            @error="handleImgError"
+            @mousedown="handleMouseDown"
+          />
+        </template>
       </div>
     </div>
   </transition>
 </template>
 
 <script>
-import { on, off } from 'element-ui/src/utils/dom';
-import { rafThrottle, isFirefox } from 'element-ui/src/utils/util';
+import { on, off } from "carfi-element-ui/src/utils/dom";
+import { rafThrottle, isFirefox } from "carfi-element-ui/src/utils/util";
 
 const Mode = {
   CONTAIN: {
-    name: 'contain',
-    icon: 'el-icon-full-screen'
+    name: "contain",
+    icon: "el-icon-full-screen",
   },
   ORIGINAL: {
-    name: 'original',
-    icon: 'el-icon-c-scale-to-original'
-  }
+    name: "original",
+    icon: "el-icon-c-scale-to-original",
+  },
 };
 
-const mousewheelEventName = isFirefox() ? 'DOMMouseScroll' : 'mousewheel';
+const mousewheelEventName = isFirefox() ? "DOMMouseScroll" : "mousewheel";
 
 export default {
-  name: 'elImageViewer',
+  name: "elImageViewer",
 
   props: {
     urlList: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     zIndex: {
       type: Number,
-      default: 2000
+      default: 2000,
     },
     onSwitch: {
       type: Function,
-      default: () => {}
+      default: () => {},
     },
     onClose: {
       type: Function,
-      default: () => {}
+      default: () => {},
     },
     initialIndex: {
       type: Number,
-      default: 0
-    }
+      default: 0,
+    },
+    innerComp: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   data() {
@@ -106,8 +126,8 @@ export default {
         deg: 0,
         offsetX: 0,
         offsetY: 0,
-        enableTransition: false
-      }
+        enableTransition: false,
+      },
     };
   },
   computed: {
@@ -127,31 +147,31 @@ export default {
       const { scale, deg, offsetX, offsetY, enableTransition } = this.transform;
       const style = {
         transform: `scale(${scale}) rotate(${deg}deg)`,
-        transition: enableTransition ? 'transform .3s' : '',
-        'margin-left': `${offsetX}px`,
-        'margin-top': `${offsetY}px`
+        transition: enableTransition ? "transform .3s" : "",
+        "margin-left": `${offsetX}px`,
+        "margin-top": `${offsetY}px`,
       };
       if (this.mode === Mode.CONTAIN) {
-        style.maxWidth = style.maxHeight = '100%';
+        style.maxWidth = style.maxHeight = "100%";
       }
       return style;
-    }
+    },
   },
   watch: {
     index: {
       handler: function(val) {
         this.reset();
         this.onSwitch(val);
-      }
+      },
     },
     currentImg(val) {
-      this.$nextTick(_ => {
+      this.$nextTick((_) => {
         const $img = this.$refs.img[0];
-        if (!$img.complete) {
+        if ($img && !$img.complete) {
           this.loading = true;
         }
       });
-    }
+    },
   },
   methods: {
     hide() {
@@ -159,7 +179,7 @@ export default {
       this.onClose();
     },
     deviceSupportInstall() {
-      this._keyDownHandler = rafThrottle(e => {
+      this._keyDownHandler = rafThrottle((e) => {
         const keyCode = e.keyCode;
         switch (keyCode) {
           // ESC
@@ -176,7 +196,7 @@ export default {
             break;
           // UP_ARROW
           case 38:
-            this.handleActions('zoomIn');
+            this.handleActions("zoomIn");
             break;
           // RIGHT_ARROW
           case 39:
@@ -184,53 +204,58 @@ export default {
             break;
           // DOWN_ARROW
           case 40:
-            this.handleActions('zoomOut');
+            this.handleActions("zoomOut");
             break;
         }
       });
-      this._mouseWheelHandler = rafThrottle(e => {
+      this._mouseWheelHandler = rafThrottle((e) => {
+        if (e.target.className.indexOf("el-image-viewer__img") < 0) {
+          return;
+        }
         const delta = e.wheelDelta ? e.wheelDelta : -e.detail;
         if (delta > 0) {
-          this.handleActions('zoomIn', {
-            zoomRate: 0.015,
-            enableTransition: false
+          this.handleActions("zoomIn", {
+            zoomRate: 0.1,
+            enableTransition: false,
           });
         } else {
-          this.handleActions('zoomOut', {
-            zoomRate: 0.015,
-            enableTransition: false
+          this.handleActions("zoomOut", {
+            zoomRate: 0.1,
+            enableTransition: false,
           });
         }
       });
-      on(document, 'keydown', this._keyDownHandler);
+      on(document, "keydown", this._keyDownHandler);
       on(document, mousewheelEventName, this._mouseWheelHandler);
     },
     deviceSupportUninstall() {
-      off(document, 'keydown', this._keyDownHandler);
+      off(document, "keydown", this._keyDownHandler);
       off(document, mousewheelEventName, this._mouseWheelHandler);
       this._keyDownHandler = null;
       this._mouseWheelHandler = null;
     },
     handleImgLoad(e) {
+      this.reset();
       this.loading = false;
     },
     handleImgError(e) {
       this.loading = false;
-      e.target.alt = '加载失败';
+      e.target.alt = "加载失败";
     },
     handleMouseDown(e) {
       if (this.loading || e.button !== 0) return;
-
+      this.transform.enableTransition = false;
       const { offsetX, offsetY } = this.transform;
       const startX = e.pageX;
       const startY = e.pageY;
-      this._dragHandler = rafThrottle(ev => {
-        this.transform.offsetX = offsetX + ev.pageX - startX;
-        this.transform.offsetY = offsetY + ev.pageY - startY;
+      this._dragHandler = rafThrottle((ev) => {
+        this.transform.offsetX = offsetX + (ev.pageX - startX) * 2;
+        this.transform.offsetY = offsetY + (ev.pageY - startY) * 2;
       });
-      on(document, 'mousemove', this._dragHandler);
-      on(document, 'mouseup', ev => {
-        off(document, 'mousemove', this._dragHandler);
+      on(document, "mousemove", this._dragHandler);
+      on(document, "mouseup", (ev) => {
+        this.transform.enableTransition = true;
+        off(document, "mousemove", this._dragHandler);
       });
 
       e.preventDefault();
@@ -241,7 +266,7 @@ export default {
         deg: 0,
         offsetX: 0,
         offsetY: 0,
-        enableTransition: false
+        enableTransition: false,
       };
     },
     toggleMode() {
@@ -270,33 +295,50 @@ export default {
         zoomRate: 0.2,
         rotateDeg: 90,
         enableTransition: true,
-        ...options
+        ...options,
       };
       const { transform } = this;
       switch (action) {
-        case 'zoomOut':
+        case "zoomOut":
           if (transform.scale > 0.2) {
-            transform.scale = parseFloat((transform.scale - zoomRate).toFixed(3));
+            transform.scale = parseFloat(
+              (transform.scale - zoomRate).toFixed(3)
+            );
           }
           break;
-        case 'zoomIn':
+        case "zoomIn":
           transform.scale = parseFloat((transform.scale + zoomRate).toFixed(3));
           break;
-        case 'clocelise':
+        case "clocelise":
           transform.deg += rotateDeg;
           break;
-        case 'anticlocelise':
+        case "anticlocelise":
           transform.deg -= rotateDeg;
           break;
       }
       transform.enableTransition = enableTransition;
-    }
+    },
   },
   mounted() {
     this.deviceSupportInstall();
     // add tabindex then wrapper can be focusable via Javascript
     // focus wrapper so arrow key can't cause inner scroll behavior underneath
-    this.$refs['el-image-viewer__wrapper'].focus();
-  }
+    this.$refs["el-image-viewer__wrapper"].focus();
+  },
 };
 </script>
+<style>
+.el-image-viewer__wrapper.el-image-viewer__comp {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+.el-image-viewer__wrapper.el-image-viewer__comp .el-image-viewer__mask {
+  background: #fff;
+}
+.el-image-viewer__wrapper.el-image-viewer__comp .el-image-viewer__close {
+  display: none;
+}
+</style>
