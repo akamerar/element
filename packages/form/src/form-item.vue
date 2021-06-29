@@ -16,7 +16,7 @@
         <slot name="label">{{label + form.labelSuffix}}</slot>
       </label>
     </label-wrap>
-    <div class="el-form-item__content" :style="contentStyle">
+    <div ref="formContent" class="el-form-item__content" :style="contentStyle">
       <slot></slot>
       <transition name="el-zoom-in-top">
         <slot
@@ -95,6 +95,15 @@
       },
       validateStatus(value) {
         this.validateState = value;
+      },
+      validateState(value) {
+        // 删除输入框单位辅助
+        if (value === 'error') {
+          const divA = this.$refs['formContent'].getElementsByClassName(
+            'el-input__money_unit'
+          )[0]
+          if (divA) this.$refs['formContent'].childNodes[0].removeChild(divA)
+        }
       }
     },
     computed: {
