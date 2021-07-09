@@ -211,6 +211,7 @@ export default {
         panels[prop].$destroy(true);
       }
     }
+    this.oSortable.destroy();
     this.oSortable = null;
   },
 
