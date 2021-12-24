@@ -45,6 +45,8 @@ class TableLayout {
     if (height === null) return false;
     const bodyWrapper = this.table.bodyWrapper;
     if (this.table.$el && bodyWrapper) {
+      // 更新后滚动条自动到最上面
+      bodyWrapper.scrollTop = 0;
       const body = bodyWrapper.querySelector('.el-table__body');
       const prevScrollY = this.scrollY;
       const scrollY = body.offsetHeight > this.bodyHeight;
