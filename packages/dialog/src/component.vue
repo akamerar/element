@@ -19,13 +19,17 @@
         :class="[
           'el-dialog',
           { 'is-fullscreen': fullscreen, 'el-dialog--center': center },
-          customClass,
+          customClass
         ]"
         ref="dialog"
         :style="style"
         v-resize="onResize"
       >
-        <div class="el-dialog__header" @mousedown="onMouseDown">
+        <div
+          class="el-dialog__header"
+          @mousedown="onMouseDown"
+          @touchstart="onMouseDown"
+        >
           <slot name="title">
             <span class="el-dialog__title">{{ title }}</span>
           </slot>
@@ -79,42 +83,42 @@ export default {
   props: {
     title: {
       type: String,
-      default: "",
+      default: ""
     },
 
     modal: {
       type: Boolean,
-      default: true,
+      default: true
     },
 
     modalAppendToBody: {
       type: Boolean,
-      default: true,
+      default: true
     },
 
     appendToBody: {
       type: Boolean,
-      default: false,
+      default: false
     },
 
     lockScroll: {
       type: Boolean,
-      default: true,
+      default: true
     },
 
     closeOnClickModal: {
       type: Boolean,
-      default: true,
+      default: true
     },
 
     closeOnPressEscape: {
       type: Boolean,
-      default: true,
+      default: true
     },
 
     showClose: {
       type: Boolean,
-      default: true,
+      default: true
     },
 
     width: String,
@@ -124,25 +128,25 @@ export default {
     // 是否可以全屏
     showFullScreen: {
       type: Boolean,
-      default: true,
+      default: true
     },
 
     customClass: {
       type: String,
-      default: "",
+      default: ""
     },
 
     top: {
       type: String,
-      default: "15vh",
+      default: "15vh"
     },
     beforeClose: Function,
     center: {
       type: Boolean,
-      default: false,
+      default: false
     },
 
-    destroyOnClose: Boolean,
+    destroyOnClose: Boolean
   },
 
   data() {
@@ -155,6 +159,7 @@ export default {
       transY: 0,
       x: 0,
       y: 0,
+      isMobile: false
     };
   },
   watch: {
@@ -187,7 +192,7 @@ export default {
       if (val) {
         this.style.width = this.width;
       }
-    },
+    }
   },
 
   computed: {},
@@ -213,8 +218,8 @@ export default {
     getMigratingConfig() {
       return {
         props: {
-          size: "size is removed.",
-        },
+          size: "size is removed."
+        }
       };
     },
     handleWrapperClick() {
@@ -270,29 +275,48 @@ export default {
     },
     // 鼠标按下事件
     onMouseDown($event) {
-      const dom = $event.target;
-      this.x = $event.pageX;
-      this.y = $event.pageY;
-      window.addEventListener("mousemove", this.setTrans);
+      if (this.isMobile && $event.touches && $event.touches.length) {
+        this.x = $event.touches[0].pageX;
+        this.y = $event.touches[0].pageY;
+        window.addEventListener("touchmove", this.setTrans);
+      } else {
+        this.x = $event.pageX;
+        this.y = $event.pageY;
+        window.addEventListener("mousemove", this.setTrans);
+      }
     },
     // setTrans
     setTrans(e) {
       var e = e || event;
-      let disX = e.pageX - this.x;
-      let disY = e.pageY - this.y;
-      this.x = e.pageX;
-      this.y = e.pageY;
+      let disX = 0;
+      let disY = 0;
+      if (this.isMobile && e.touches && e.touches.length) {
+        disX = e.touches[0].pageX - this.x;
+        disY = e.touches[0].pageY - this.y;
+        this.x = e.touches[0].pageX;
+        this.y = e.touches[0].pageY;
+      } else {
+        disX = e.pageX - this.x;
+        disY = e.pageY - this.y;
+        this.x = e.pageX;
+        this.y = e.pageY;
+      }
       this.transX = this.transX + disX;
       this.transY = this.transY + disY;
       this.style.left = `${this.transX}px`;
       this.style.top = `${this.transY}px`;
     },
     removeEvent() {
-      window.removeEventListener("mousemove", this.setTrans);
-    },
+      if (this.isMobile) {
+        window.removeEventListener("touchmove", this.setTrans);
+      } else {
+        window.removeEventListener("mousemove", this.setTrans);
+      }
+    }
   },
 
   mounted() {
+    this.isMobile = "ontouchstart" in window;
     if (this.visible) {
       this.rendered = true;
       this.open();
@@ -300,7 +324,11 @@ export default {
         document.body.appendChild(this.$el);
       }
     }
-    window.addEventListener("mouseup", this.removeEvent);
+    if (this.isMobile) {
+      window.addEventListener("touchend", this.removeEvent);
+    } else {
+      window.addEventListener("mouseup", this.removeEvent);
+    }
   },
 
   destroyed() {
@@ -308,7 +336,11 @@ export default {
     if (this.appendToBody && this.$el && this.$el.parentNode) {
       this.$el.parentNode.removeChild(this.$el);
     }
-    window.removeEventListener("mouseup", this.removeEvent);
-  },
+    if (this.isMobile) {
+      window.removeEventListener("touchend", this.removeEvent);
+    } else {
+      window.removeEventListener("mouseup", this.removeEvent);
+    }
+  }
 };
 </script>
