@@ -159,7 +159,8 @@ export default {
       transY: 0,
       x: 0,
       y: 0,
-      isMobile: false
+      isMobile: false,
+      hasInitEvent: false
     };
   },
   watch: {
@@ -186,6 +187,15 @@ export default {
             this.key++;
           });
         }
+        // 关闭时 解绑事件
+        if (this.isMobile) {
+          window.removeEventListener("touchmove", this.setTrans);
+          window.removeEventListener("touchend", this.removeEvent);
+        } else {
+          window.removeEventListener("mousemove", this.setTrans);
+          window.removeEventListener("mouseup", this.removeEvent);
+        }
+        this.hasInitEvent = false;
       }
     },
     width(val) {
@@ -275,18 +285,23 @@ export default {
     },
     // 鼠标按下事件
     onMouseDown($event) {
+      if (this.hasInitEvent) return false;
       if (this.isMobile && $event.touches && $event.touches.length) {
         this.x = $event.touches[0].pageX;
         this.y = $event.touches[0].pageY;
-        window.addEventListener("touchmove", this.setTrans);
+        window.addEventListener("touchmove", this.setTrans, false);
+        window.addEventListener("touchend", this.removeEvent, false);
       } else {
         this.x = $event.pageX;
         this.y = $event.pageY;
         window.addEventListener("mousemove", this.setTrans);
+        window.addEventListener("mouseup", this.removeEvent);
       }
+      this.hasInitEvent = true;
     },
     // setTrans
     setTrans(e) {
+      if (!this.hasInitEvent) return false;
       var e = e || event;
       let disX = 0;
       let disY = 0;
@@ -309,14 +324,20 @@ export default {
     removeEvent() {
       if (this.isMobile) {
         window.removeEventListener("touchmove", this.setTrans);
+        window.removeEventListener("touchend", this.removeEvent);
       } else {
         window.removeEventListener("mousemove", this.setTrans);
+        window.removeEventListener("mouseup", this.removeEvent);
       }
+      setTimeout(() => {
+        this.hasInitEvent = false;
+      }, 0);
     }
   },
 
   mounted() {
     this.isMobile = "ontouchstart" in window;
+    this.hasInitEvent = false;
     if (this.visible) {
       this.rendered = true;
       this.open();
@@ -324,22 +345,11 @@ export default {
         document.body.appendChild(this.$el);
       }
     }
-    if (this.isMobile) {
-      window.addEventListener("touchend", this.removeEvent);
-    } else {
-      window.addEventListener("mouseup", this.removeEvent);
-    }
   },
-
   destroyed() {
     // if appendToBody is true, remove DOM node after destroy
     if (this.appendToBody && this.$el && this.$el.parentNode) {
       this.$el.parentNode.removeChild(this.$el);
-    }
-    if (this.isMobile) {
-      window.removeEventListener("touchend", this.removeEvent);
-    } else {
-      window.removeEventListener("mouseup", this.removeEvent);
     }
   }
 };
