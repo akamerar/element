@@ -384,6 +384,11 @@ export default {
     lazy: Boolean,
 
     load: Function,
+
+    refreshAutoTop: {
+      type: Boolean,
+      default: true
+    }
   },
 
   components: {
